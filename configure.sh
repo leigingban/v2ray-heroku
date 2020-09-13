@@ -4,16 +4,23 @@
 mkdir /tmp/v2ray
 curl -L -H "Cache-Control: no-cache" -o /tmp/v2ray/v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
 unzip /tmp/v2ray/v2ray.zip -d /tmp/v2ray
-install -m 755 /tmp/v2ray/v2ray /usr/local/bin/v2ray
-install -m 755 /tmp/v2ray/v2ctl /usr/local/bin/v2ctl
+
+mkdir /usr/bin/v2ray
+install -m 755 /tmp/v2ray/v2ray /usr/bin/v2ray/v2ray
+install -m 755 /tmp/v2ray/v2ctl /usr/bin/v2ray/v2ctl
+install -m 755 /tmp/v2ray/geosite.dat /usr/bin/v2ray/geosite.dat
+install -m 755 /tmp/v2ray/geoip.dat /usr/bin/v2ray/geoip.dat
+
 
 # Remove temporary directory
 rm -rf /tmp/v2ray
 
 # V2Ray new configuration
-install -d /usr/local/etc/v2ray
-cat << EOF > /usr/local/etc/v2ray/config.json
+cat << EOF > /usr/bin/v2ray/config.json
 {
+    "log": {
+        "loglevel": "warning"
+    },
     "inbounds": [
         {
             "port": $PORT,
@@ -22,23 +29,52 @@ cat << EOF > /usr/local/etc/v2ray/config.json
                 "clients": [
                     {
                         "id": "$UUID",
-                        "alterId": 64
+                        "level": 0,
+                        "email": "love@v2fly.org"
                     }
                 ],
-                "disableInsecureEncryption": true
+                "decryption": "none"
             },
             "streamSettings": {
-                "network": "ws"
+                "network": "ws",
+                "wsSettings": {
+                    "path": "/$WSPATH/"
+                }
             }
         }
     ],
     "outbounds": [
         {
             "protocol": "freedom"
+        },
+        {
+            "protocol": "socks",
+            "tag": "sockstor",
+            "settings": {
+                "servers": [
+                    {
+                        "address": "127.0.0.1",
+                        "port": 9050
+                    }
+                ]
+            }
         }
-    ]
+    ],
+
+    "routing": {
+        "rules": [
+            {
+                "type": "field",
+                "outboundTag": "sockstor",
+                "domain": [
+                    "regexp:\\.onion$"
+                ]
+            }
+        ]
+    }
 }
 EOF
 
+cat /usr/bin/v2ray/config.json
 # Run V2Ray
-/usr/local/bin/v2ray -config /usr/local/etc/v2ray/config.json
+nohup tor & /usr/bin/v2ray/v2ray -config /usr/bin/v2ray/config.json
