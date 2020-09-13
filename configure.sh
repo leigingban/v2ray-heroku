@@ -49,7 +49,7 @@ cat << EOF > /usr/bin/v2ray/config.json
         },
         {
             "protocol": "socks",
-            "tag": "sockstor",
+            "tag": "tor",
             "settings": {
                 "servers": [
                     {
@@ -65,7 +65,7 @@ cat << EOF > /usr/bin/v2ray/config.json
         "rules": [
             {
                 "type": "field",
-                "outboundTag": "sockstor",
+                "outboundTag": "tor",
                 "domain": [
                     "regexp:\\.onion$"
                 ]
