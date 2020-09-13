@@ -16,6 +16,7 @@ install -m 755 /tmp/v2ray/geoip.dat /usr/bin/v2ray/geoip.dat
 rm -rf /tmp/v2ray
 
 # V2Ray new configuration
+# 注意 \\ 将会被转义 “\\” -> "\"
 cat << EOF > /usr/bin/v2ray/config.json
 {
     "log": {
@@ -67,7 +68,7 @@ cat << EOF > /usr/bin/v2ray/config.json
                 "type": "field",
                 "outboundTag": "tor",
                 "domain": [
-                    "regexp:\\.onion$"
+                    "regexp:\\\\.onion$"
                 ]
             }
         ]
