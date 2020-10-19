@@ -2,81 +2,49 @@
 
 # version v4.31.2
 # Download and install V2Ray
-mkdir /tmp/v2ray
-curl -L -H "Cache-Control: no-cache" -o /tmp/v2ray/v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
-unzip /tmp/v2ray/v2ray.zip -d /tmp/v2ray
+mkdir /tmp/trojan-go
+curl -L -H "Cache-Control: no-cache" -o /tmp/v2ray/trojan-go-linux-amd64.zip https://github.com/p4gefau1t/trojan-go/releases/download/v0.8.2/trojan-go-linux-amd64.zip
 
-mkdir /usr/bin/v2ray
-install -m 755 /tmp/v2ray/v2ray /usr/bin/v2ray/v2ray
-install -m 755 /tmp/v2ray/v2ctl /usr/bin/v2ray/v2ctl
-install -m 755 /tmp/v2ray/geosite.dat /usr/bin/v2ray/geosite.dat
-install -m 755 /tmp/v2ray/geoip.dat /usr/bin/v2ray/geoip.dat
+unzip /tmp/v2ray/trojan-go-linux-amd64.zip -d /tmp/trojan-go
+
+mkdir /app/trojan-go
+
+install -m 755 /tmp/trojan-go/trojan-go /app/trojan-go/trojan-go
+install -m 755 /tmp/trojan-go/geoip.dat /app/trojan-go/geoip.dat
+install -m 755 /tmp/trojan-go/geosite.dat /app/trojan-go/geosite.dat
 
 
 # Remove temporary directory
-rm -rf /tmp/v2ray
+rm -rf /tmp/trojan-go
 
 # V2Ray new configuration
 # 注意 \\ 将会被转义 “\\” -> "\"
-cat << EOF > /usr/bin/v2ray/config.json
+cat << EOF > /app/trojan-go/server.json
 {
-    "log": {
-        "loglevel": "warning"
+    "run_type": "server",
+    "local_addr": "0.0.0.0",
+    "local_port": $PORT,
+    "remote_addr": "127.0.0.1",
+    "remote_port": 80,
+    "log_level": 1,
+    "password": [
+        "$UUID"
+    ],
+    "websocket": {
+        "enabled": true,
+        "path": "/$WSPATH"
     },
-    "inbounds": [
-        {
-            "port": $PORT,
-            "protocol": "vmess",
-            "settings": {
-                "clients": [
-                    {
-                        "id": "$UUID",
-                        "level": 0,
-                        "email": "love@v2fly.org"
-                    }
-                ],
-                "decryption": "none"
-            },
-            "streamSettings": {
-                "network": "ws",
-                "wsSettings": {
-                    "path": "/$WSPATH/"
-                }
-            }
-        }
-    ],
-    "outbounds": [
-        {
-            "protocol": "freedom"
-        },
-        {
-            "protocol": "socks",
-            "tag": "tor",
-            "settings": {
-                "servers": [
-                    {
-                        "address": "127.0.0.1",
-                        "port": 9050
-                    }
-                ]
-            }
-        }
-    ],
-
-    "routing": {
-        "rules": [
-            {
-                "type": "field",
-                "outboundTag": "tor",
-                "domain": [
-                    "regexp:\\\\.onion$"
-                ]
-            }
-        ]
+    "router": {
+        "enabled": true,
+        "block": [
+            "geoip:private"
+        ],
+        "geoip": "/app/trojan-go/geoip.dat",
+        "geosite": "/app/trojan-go/geosite.dat"
     }
 }
 EOF
 
-cat /usr/bin/v2ray/config.json
+cat /app/trojan-go/server.json
 # Run V2Ray
-nohup tor & /usr/bin/v2ray/v2ray -config /usr/bin/v2ray/config.json
+/app/trojan-go/trojan-go -config /app/trojan-go/config.json
