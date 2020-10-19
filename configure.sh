@@ -3,9 +3,9 @@
 # version v4.31.2
 # Download and install V2Ray
 mkdir /tmp/trojan-go
-curl -L -H "Cache-Control: no-cache" -o /tmp/v2ray/trojan-go-linux-amd64.zip https://github.com/p4gefau1t/trojan-go/releases/download/v0.8.2/trojan-go-linux-amd64.zip
+curl -L -H "Cache-Control: no-cache" -o /tmp/trojan-go/trojan-go-linux-amd64.zip https://github.com/p4gefau1t/trojan-go/releases/download/v0.8.2/trojan-go-linux-amd64.zip
 
-unzip /tmp/v2ray/trojan-go-linux-amd64.zip -d /tmp/trojan-go
+unzip /tmp/trojan-go/trojan-go-linux-amd64.zip -d /tmp/trojan-go
 
 mkdir /app/trojan-go
 
@@ -17,7 +17,7 @@ install -m 755 /tmp/trojan-go/geosite.dat /app/trojan-go/geosite.dat
 # Remove temporary directory
 rm -rf /tmp/trojan-go
 
-# V2Ray new configuration
+# trojan-go new configuration
 # 注意 \\ 将会被转义 “\\” -> "\"
 cat << EOF > /app/trojan-go/server.json
 {
@@ -46,5 +46,5 @@ cat << EOF > /app/trojan-go/server.json
 EOF
 
 cat /app/trojan-go/server.json
-# Run V2Ray
+# Run trojan-go
 /app/trojan-go/trojan-go -config /app/trojan-go/config.json
