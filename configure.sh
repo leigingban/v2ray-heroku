@@ -47,4 +47,4 @@ EOF
 
 cat /usr/bin/trojan-go/server.json
 # Run trojan-go
-/usr/bin/trojan-go/trojan-go -config /usr/bin/trojan-go/config.json
+/usr/bin/trojan-go/trojan-go -config /usr/bin/trojan-go/server.json
